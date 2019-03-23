@@ -1,0 +1,7 @@
+<resources>
+  <string name="text_biometric_title">Verification</string>
+  <string name="text_biometric_subtitle">Verify fingerprint to continue</string>
+  <string name="text_biometric_description">Touch the fingerprint sensor</string>
+  <string name="text_biometric_negative">Negative</string>
+  <string name="text_biometric_not_recognized_fingerprint">Not recognized</string>
+</resources>

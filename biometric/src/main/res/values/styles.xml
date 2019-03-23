@@ -1,0 +1,19 @@
+<resources xmlns:tools="http://schemas.android.com/tools">
+
+    <style name="Theme.BiometricPromptDialog" parent="android:Theme.DeviceDefault.Light.Dialog.NoActionBar">
+        <item name="android:windowMinWidthMajor">100%</item>
+        <item name="android:windowMinWidthMinor">100%</item>
+        <item name="android:windowBackground">@color/material_grey_50</item>
+        <item name="android:windowAnimationStyle">@style/BottomSheetDialogAnimation</item>
+        <item name="android:colorControlActivated" tools:ignore="NewApi">#347fe2</item>
+    </style>
+
+    <style name="BottomSheetDialogAnimation">
+        <item name="android:interpolator" tools:ignore="NewApi">
+            @android:interpolator/fast_out_linear_in
+        </item>
+        <item name="android:windowEnterAnimation">@anim/move_in</item>
+        <item name="android:windowExitAnimation">@anim/move_out</item>
+    </style>
+
+</resources>

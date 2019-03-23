@@ -1,0 +1,7 @@
+<resources>
+  <string name="text_biometric_title">指紋驗證</string>
+  <string name="text_biometric_subtitle">驗證指紋以繼續</string>
+  <string name="text_biometric_description">請觸摸指紋傳感器</string>
+  <string name="text_biometric_negative">取消</string>
+  <string name="text_biometric_not_recognized_fingerprint">無法識別</string>
+</resources>
