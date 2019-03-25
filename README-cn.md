@@ -1,6 +1,6 @@
 # BiometricPromptCompat
 
-[English document](https://github.com/putme2yourheart/BiometricPromptCompat/blob/master/README-cn.md)
+[English document](https://github.com/putme2yourheart/BiometricPromptCompat/blob/master/README.md)
 
 > 在Android P中，Google为开发人员提供了一种更简单的方法来使用生物识别传感器来验证用户身份：BiometricPrompt。
 可惜的是，它仅在最新的Android P中受支持。 我们创建了一个兼容库，可以将它带到所有Android 6.0+设备。
