@@ -1,6 +1,6 @@
 # BiometricPromptCompat
 
-[中文文档](https://github.com/putme2yourheart/BiometricPromptCompat/master/README-cn.md)
+[中文文档](https://github.com/putme2yourheart/BiometricPromptCompat/blob/master/README-cn.md)
 
 > In Android P, Google provides a easier way for developers to use biometric sensors to authenticate user identity: **BiometricPrompt**. However, it is only supported in latest Android. We create a compat library to take it to All Android 6.0+ devices.
 
