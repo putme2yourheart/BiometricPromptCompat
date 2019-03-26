@@ -12,7 +12,7 @@
 - Add the library to your module `build.gradle`
 ```groovy
 dependencies {
-     implementation 'io.putme2yourheart.biometricprompt:library:1.0.0'
+     implementation 'io.putme2yourheart:biometric:1.0.0'
 }
 ```
 
