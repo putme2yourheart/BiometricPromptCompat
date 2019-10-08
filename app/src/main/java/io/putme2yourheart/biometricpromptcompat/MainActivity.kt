@@ -38,30 +38,29 @@ class MainActivity : AppCompatActivity() {
             ).show()
             return
         }
-        BiometricPromptCompat.Builder(this)
-            .setTitle("Title")
-            .setSubtitle("Subtitle")
-            .setDescription("Description")
-            .setNegativeButton("NEGATIVE",
+        BiometricPromptCompat(this).authenticate {
+            title("Title")
+            subtitle("Subtitle")
+            description("Description")
+            negativeButton("NEGATIVE",
                 DialogInterface.OnClickListener { dialog, which ->
                 })
-            .build()
-            .authenticate(object : BiometricPromptCompat.IBiometricAuthenticationCallback {
-                override fun onAuthenticationHelp(helpCode: Int, helpString: CharSequence) {
-                    Log.i(TAG, "onAuthenticationHelp $helpString")
-                }
-
-                override fun onAuthenticationSucceeded() {
-                    Toast.makeText(this@MainActivity, "Authentication!", Toast.LENGTH_SHORT).show()
-                }
-
-                override fun onAuthenticationFailed() {
-                    Log.i(TAG, "onAuthenticationFailed")
-                }
-
-                override fun onAuthenticationError(errorCode: Int, errString: String) {
-                    Log.i(TAG, "onAuthenticationError $errString")
-                }
-            })
+            succeededCallback {
+                Toast.makeText(
+                    this@MainActivity,
+                    "Authentication!",
+                    Toast.LENGTH_SHORT
+                ).show()
+            }
+            failedCallback {
+                Log.i(TAG, "onAuthenticationFailed")
+            }
+            errorCallback { errorCode, errString ->
+                Log.i(TAG, "onAuthenticationError $errString")
+            }
+            helpCallback { helpCode, helpString ->
+                Log.i(TAG, "onAuthenticationHelp $helpString")
+            }
+        }
     }
 }

@@ -13,107 +13,161 @@ import androidx.annotation.RequiresApi
 import androidx.annotation.StringRes
 import java.util.*
 
-class BiometricPromptCompat private constructor(private val impl: IBiometricPromptImpl) {
+typealias SucceededCallback = () -> Unit
+typealias FailedCallback = () -> Unit
+typealias ErrorCallback = (errorCode: Int, errString: String) -> Unit
+typealias HelpCallback = (helpCode: Int, helpString: CharSequence) -> Unit
 
-    fun authenticate(callback: IBiometricAuthenticationCallback) {
-        impl.authenticate(CancellationSignal(), callback)
+class BiometricPromptCompat constructor(val windowContext: Context) {
+
+    var title: CharSequence? = null
+        internal set
+    var subtitle: CharSequence? = null
+        internal set
+    var description: CharSequence? = null
+        internal set
+
+    private var negativeButtonText: CharSequence? = null
+    private var negativeButtonListener: DialogInterface.OnClickListener? = null
+
+    private var succeededCallback: SucceededCallback? = null
+    private var failedCallback: FailedCallback? = null
+    private var errorCallback: ErrorCallback? = null
+    private var helpCallback: HelpCallback? = null
+
+    private var cancel: CancellationSignal = CancellationSignal()
+    private val callback: IBiometricAuthenticationCallback = object : IBiometricAuthenticationCallback {
+        override fun onAuthenticationFailed() {
+            failedCallback?.invoke()
+        }
+
+        override fun onAuthenticationError(errorCode: Int, errString: String) {
+            errorCallback?.invoke(errorCode, errString)
+        }
+
+        override fun onAuthenticationHelp(helpCode: Int, helpString: CharSequence) {
+            helpCallback?.invoke(helpCode, helpString)
+        }
+
+        override fun onAuthenticationSucceeded() {
+            succeededCallback?.invoke()
+        }
     }
 
-    fun authenticate(cancel: CancellationSignal, callback: IBiometricAuthenticationCallback) {
-        impl.authenticate(cancel, callback)
+    fun title(text: String?): BiometricPromptCompat {
+        this.title = text
+        return this
     }
 
-    class Builder(private val context: Context) {
-        private var title: CharSequence? = null
+    fun title(@StringRes resId: Int): BiometricPromptCompat {
+        this.title = windowContext.getString(resId)
+        return this
+    }
 
-        private var subtitle: CharSequence? = null
+    fun subtitle(text: String?): BiometricPromptCompat {
+        this.subtitle = text
+        return this
+    }
 
-        private var description: CharSequence? = null
+    fun subtitle(@StringRes resId: Int): BiometricPromptCompat {
+        this.subtitle = windowContext.getString(resId)
+        return this
+    }
 
-        private var negativeButtonText: CharSequence? = null
+    fun description(text: String?): BiometricPromptCompat {
+        this.description = text
+        return this
+    }
 
-        private var negativeButtonListener: DialogInterface.OnClickListener? = null
+    fun description(@StringRes resId: Int): BiometricPromptCompat {
+        this.description = windowContext.getString(resId)
+        return this
+    }
 
-        private object DefaultListener : DialogInterface.OnClickListener {
-            override fun onClick(dialog: DialogInterface?, which: Int) {
-                dialog?.dismiss()
+    fun negativeButton(
+        text: CharSequence?,
+        listener: DialogInterface.OnClickListener
+    ): BiometricPromptCompat {
+        this.negativeButtonText = text
+        this.negativeButtonListener = listener
+        return this
+    }
+
+    fun negativeButton(
+        @StringRes resId: Int,
+        listener: DialogInterface.OnClickListener
+    ): BiometricPromptCompat {
+        this.negativeButtonText = windowContext.getString(resId)
+        this.negativeButtonListener = listener
+        return this
+    }
+
+    fun succeededCallback(callback: SucceededCallback): BiometricPromptCompat {
+        succeededCallback = callback
+        return this
+    }
+
+    fun failedCallback(callback: FailedCallback): BiometricPromptCompat {
+        failedCallback = callback
+        return this
+    }
+
+    fun errorCallback(callback: ErrorCallback): BiometricPromptCompat {
+        errorCallback = callback
+        return this
+    }
+
+    fun helpCallback(callback: HelpCallback): BiometricPromptCompat {
+        helpCallback = callback
+        return this
+    }
+
+    fun cancellationSignal(cancel: CancellationSignal): BiometricPromptCompat {
+        this.cancel = cancel
+        return this
+    }
+
+    inline fun authenticate(
+        func: BiometricPromptCompat.() -> Unit
+    ): BiometricPromptCompat {
+        this.func()
+        authenticate()
+        return this
+    }
+
+    fun authenticate() {
+        build().authenticate(cancel, callback)
+    }
+
+    @SuppressLint("NewApi")
+    private fun build(): IBiometricPromptImpl {
+        return if (isAboveApi28()) {
+            val builder = BiometricPrompt.Builder(windowContext)
+            builder.setTitle(title ?: windowContext.getString(R.string.text_biometric_title))
+            subtitle?.let {
+                builder.setSubtitle(it)
             }
-        }
-
-        fun setTitle(title: String?): Builder {
-            this.title = title
-            return this
-        }
-
-        fun setTitle(@StringRes resId: Int): Builder {
-            this.title = context.getString(resId)
-            return this
-        }
-
-        fun setSubtitle(subtitle: String?): Builder {
-            this.subtitle = subtitle
-            return this
-        }
-
-        fun setSubtitle(@StringRes resId: Int): Builder {
-            this.subtitle = context.getString(resId)
-            return this
-        }
-
-        fun setDescription(description: String?): Builder {
-            this.description = description
-            return this
-        }
-
-        fun setDescription(@StringRes resId: Int): Builder {
-            this.description = context.getString(resId)
-            return this
-        }
-
-        fun setNegativeButton(
-            text: CharSequence?,
-            listener: DialogInterface.OnClickListener
-        ): Builder {
-            this.negativeButtonText = text
-            this.negativeButtonListener = listener
-            return this
-        }
-
-        fun setNegativeButton(
-            @StringRes resId: Int,
-            listener: DialogInterface.OnClickListener
-        ): Builder {
-            this.negativeButtonText = context.getString(resId)
-            this.negativeButtonListener = listener
-            return this
-        }
-
-        @SuppressLint("NewApi")
-        fun build(): BiometricPromptCompat {
-            return if (isAboveApi28()) {
-                val builder = BiometricPrompt.Builder(context)
-                builder.setTitle(title ?: context.getString(R.string.text_biometric_title))
-                subtitle?.let {
-                    builder.setSubtitle(it)
-                }
-                description?.let {
-                    builder.setDescription(it)
-                }
-                builder.setNegativeButton(
-                    negativeButtonText ?: context.getString(R.string.text_biometric_negative),
-                    context.mainExecutor,
-                    negativeButtonListener ?: DefaultListener
-                )
-                BiometricPromptCompat(BiometricPromptApi28Impl(context, builder.build()))
-            } else {
-                BiometricPromptCompat(
-                    BiometricPromptApi23Impl(
-                        context, title, subtitle, description,
-                        negativeButtonText ?: context.getString(R.string.text_biometric_negative),
-                        negativeButtonListener ?: DefaultListener
-                    )
-                )
+            description?.let {
+                builder.setDescription(it)
             }
+            builder.setNegativeButton(
+                negativeButtonText ?: windowContext.getString(R.string.text_biometric_negative),
+                windowContext.mainExecutor,
+                negativeButtonListener ?: DefaultListener
+            )
+            BiometricPromptApi28Impl(windowContext, builder.build())
+        } else {
+            BiometricPromptApi23Impl(
+                windowContext, title, subtitle, description,
+                negativeButtonText ?: windowContext.getString(R.string.text_biometric_negative),
+                negativeButtonListener ?: DefaultListener
+            )
+        }
+    }
+
+    private object DefaultListener : DialogInterface.OnClickListener {
+        override fun onClick(dialog: DialogInterface?, which: Int) {
+            dialog?.dismiss()
         }
     }
 
