@@ -54,6 +54,7 @@ BiometricPromptCompat.hasEnrolledFingerprints(Context)
             helpCallback { helpCode, helpString ->
                 Log.i(TAG, "onAuthenticationHelp $helpString")
             }
+        }
 ```
 
 ## Test & Screenshots:
