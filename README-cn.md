@@ -32,54 +32,30 @@ BiometricPromptCompat.hasEnrolledFingerprints(Context)
 
 - 你可以很简单地使用BiometricPromptCompat
 ```kotlin
-BiometricPromptCompat.Builder(this)
-            .build()
-            .authenticate(object : BiometricPromptCompat.IBiometricAuthenticationCallback {
-                override fun onAuthenticationHelp(helpCode: Int, helpString: CharSequence) {
-                    
-                }
-
-                override fun onAuthenticationSucceeded() {
-                    
-                }
-
-                override fun onAuthenticationFailed() {
-                   
-                }
-
-                override fun onAuthenticationError(errorCode: Int, errString: String) {
-                    
-                }
-            })
-```
-
-- 或者
-```kotlin
-BiometricPromptCompat.Builder(this)
-            .setTitle("Title")
-            .setSubtitle("Subtitle")
-            .setDescription("Description")
-            .setNegativeButton("NEGATIVE",
+     BiometricPromptCompat(this).authenticate {
+            title("Title")
+            subtitle("Subtitle")
+            description("Description")
+            negativeButton("NEGATIVE",
                 DialogInterface.OnClickListener { dialog, which ->
                 })
-            .build()
-            .authenticate(object : BiometricPromptCompat.IBiometricAuthenticationCallback {
-                override fun onAuthenticationHelp(helpCode: Int, helpString: CharSequence) {
-                    
-                }
-
-                override fun onAuthenticationSucceeded() {
-                    
-                }
-
-                override fun onAuthenticationFailed() {
-                   
-                }
-
-                override fun onAuthenticationError(errorCode: Int, errString: String) {
-                    
-                }
-            })
+            succeededCallback {
+                Toast.makeText(
+                    this@MainActivity,
+                    "Authentication!",
+                    Toast.LENGTH_SHORT
+                ).show()
+            }
+            failedCallback {
+                Log.i(TAG, "onAuthenticationFailed")
+            }
+            errorCallback { errorCode, errString ->
+                Log.i(TAG, "onAuthenticationError $errString")
+            }
+            helpCallback { helpCode, helpString ->
+                Log.i(TAG, "onAuthenticationHelp $helpString")
+            }
+        }
 ```
 
 ## 测试与示例
